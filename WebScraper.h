@@ -5,8 +5,8 @@
 #pragma once
 #include <iostream>
 #include <fstream>
-#include "../vcpkg/installed/x86-windows/include/cpr/cpr.h"
-#include "../vcpkg/installed/x86-windows/include/gumbo.h"
+#include "vcpkg/packages/cpr_x64-osx/include/cpr/cpr.h"
+#include "vcpkg/packages/gumbo_x64-osx/include/gumbo.h"
 #include <istream>
 #include <vector>
 #include <map>
@@ -17,101 +17,194 @@ struct WebScraper {
     WebScraper() {
         test = "";
     }
-    string search_for_name(string webInfo, string name, string company) {
-        string nameKey = "<a class=" + '"';
-        nameKey += "app-aware-link" + '"';
-        nameKey += " href=" + '"';
-        string link = "https://www.linkedin.com/in/";
-        string username;
-        string companyKey = "<div class = " + '"';
-        companyKey += "entity-result__primary-subtitle t-14 t-black t-normal";
-        for (unsigned int i : webInfo) {
-            if (webInfo.substr(i, 61) == (nameKey + link)) {
-                username = "";
-                for (unsigned int j = i + 61; j < webInfo.size(); j++) {
-                    if (webInfo[j] == '"') {
-                        break;
-                    }
-                    username += webInfo[j];
-                }
-            }
-            if (webInfo.substr(i, 68) == companyKey) {
-                for (unsigned int k = i + 69; k < webInfo.size(); k++) {
-                    if (webInfo.substr(k, company.size() + 3) == "at " + company) {
-                        return link + username;
-                    }
-                    else if (webInfo.substr(k, 6) == "</div>") {
-                        break;
-                    }
-                }
-            }
+    //adds names of directors and writers to vector of names plus their profile links in a different vector from snippet of html
+    void getDirAndWriter(vector<string>& names, string& webInfo, vector<string>& profileLinks){
+        int linkFind, index2;
+        int distToTableEnd = INT_MAX;//webInfo.find("h4");
+        linkFind = 0;
+        linkFind = webInfo.find("a href=") + 9;
+        while (distToTableEnd > linkFind) {
+            webInfo = webInfo.substr(linkFind);
+            linkFind = webInfo.find("\"\n");
+            profileLinks.push_back("https://www.imdb.com/" + webInfo.substr(0, linkFind));
+            webInfo = webInfo.substr(linkFind + 4);
+            index2 = webInfo.find("\n<");
+            names.push_back(webInfo.substr(0, index2));
+            distToTableEnd = webInfo.find("ast_list");
+            linkFind = webInfo.find("a href=") + 9;
+            //distToTableEnd = webInfo.find("Cast");
         }
-        cout << "Error: user profile not found. Please ensure your input is accurate and case-sensitive for the name and company for this user" << endl;
-        return "";
+        //just to debug:
+        try {
+            webInfo = webInfo.substr(distToTableEnd);
+        }
+        catch (std::out_of_range) {
+            return;
+        }
+        //linkFind = webInfo.find("writer");
+        //webInfo = webInfo.substr(linkFind);
+        //linkFind = webInfo.find("table class=");
+        //webInfo = webInfo.substr(linkFind);
+        //distToTableEnd = webInfo.find("/table");
+        //while (distToTableEnd > linkFind) {
+        //    linkFind = webInfo.find("a href=") + 9;
+        //    webInfo = webInfo.substr(linkFind);
+        //    linkFind = webInfo.find('"');
+        //    profileLinks.push_back("https://www.imdb.com/" + webInfo.substr(0, linkFind));
+        //    webInfo = webInfo.substr(linkFind);
+        //    index2 = webInfo.find('>');
+        //    webInfo = webInfo.substr(index2);
+        //    if (webInfo[0] == ' ') {
+        //        webInfo = webInfo.substr(1);
+        //    }
+        //    index2 = webInfo.find(" </a>");
+        //    names.push_back(webInfo.substr(0, index2));
+        //    distToTableEnd = webInfo.find("/table");
+        //}
     }
-    string extractSearchInfo(string searchName) {
-        string addToURL = searchName;
-        int index = addToURL.find(' ');
-        addToURL.replace(index, index + 1, "%20");
-        addToURL += searchName.substr(index + 1);
-        cpr::Url url = cpr::Url{ "https://www.linkedin.com/search/results/people/?keywords=" + addToURL + "&origin=GLOBAL_SEARCH_HEADER&sid=2a2" };
-        cpr::Response response = cpr::Get(url);
-        //cout << response.text;
-        return response.text;
+    //takes inputs of a snippet of html code for movie site, vectors for names and links to profiles to be added to (just actors)
+    void getCastMembers(string& webInfo, vector<string>& names, vector<string>& profileLinks) {
+        /*int index = webInfo.find("table class=");
+        webInfo = webInfo.substr(index);*/
+        int index = webInfo.find("tr class=");
+        int endOfCast = webInfo.find("dataHeaderWithBorder");
+        while (index < endOfCast && index > 0) {
+            webInfo = webInfo.substr(index);
+            index = webInfo.find("a href=") + 9;
+            webInfo = webInfo.substr(index);
+            index = webInfo.find('\"');
+            profileLinks.push_back("https://www.imdb.com/" + webInfo.substr(0, index));
+            index = webInfo.find("title=") + 7;
+            webInfo = webInfo.substr(index);
+            index = webInfo.find('\"');
+            names.push_back(webInfo.substr(0, index));
+            index = webInfo.find("tr class=");
+            endOfCast = webInfo.find("dataHeaderWithBorder");
+        }
+        try {
+            webInfo = webInfo.substr(endOfCast);
+        }
+        catch (std::out_of_range) {
+            return;
+        }
     }
-    string getLinkToConnections(string profileLink) {
-        cpr::Url url = cpr::Url{ profileLink };
-        cpr::Response response = cpr::Get(url);
-        string htmlCode = response.text;
-        int index = htmlCode.find("<a href=\"/search/results/people/?connectionOf");
+    //input is vector of names for crew to be added to (alr has director/writer and actors), snippet
+    //of html code, vector for profile page urls
+    void getCrew(vector<string>& names, string& webInfo, vector<string>& profileLinks) {
+        int bodyIndex = webInfo.find("tbody");
+        if (bodyIndex == -1) {
+            return;
+        }
+        webInfo = webInfo.substr(bodyIndex);
+        int rowIndex, linkPos, nameEnd;
+        rowIndex = webInfo.find("td class=");
+        string link = "https://www.imdb.com/";
+        while (rowIndex != string::npos) {
+            webInfo = webInfo.substr(rowIndex);
+            linkPos = webInfo.find("a href=") + 9;
+            webInfo = webInfo.substr(linkPos);
+            linkPos = webInfo.find('\"');
+            profileLinks.push_back(link + webInfo.substr(0, linkPos));
+            linkPos = webInfo.find("\n>") + 3;
+            webInfo = webInfo.substr(linkPos);
+            nameEnd = webInfo.find("</a>") - 1;
+            names.push_back(webInfo.substr(0, nameEnd));
+            rowIndex = webInfo.find("td class=");
+        }
+        names.pop_back();
+        profileLinks.pop_back();
+    }
+
+    void getProfileMovieLinks(string linkToProfile, vector<string>& movieLinks) {
+        string webInfo = cpr::Get(cpr::Url{ linkToProfile }).text;
+        unsigned int index = webInfo.find("filmo-category-section");
+        webInfo = webInfo.substr(index);
+        string linkToMovie;
+        unsigned int linkEndIndex;
+        unsigned int endIndex = INT_MAX;
+        endIndex = webInfo.find("archive_footage");
+        index = webInfo.find("a href=");
+        while (index < endIndex) {
+            webInfo = webInfo.substr(index + 8);
+            linkEndIndex = webInfo.find('\"');
+            linkToMovie = webInfo.substr(0, linkEndIndex);
+            movieLinks.push_back("https://www.imdb.com" + linkToMovie);
+            index = webInfo.find("filmo-row");
+            index = webInfo.find("a href=");
+        }
+    }
+    
+    vector<string> getMovieRoster(string& link, vector<string>& profileLinks) {
+        /*int test1, test2;
+        test1 = link.find("https://");
+        test2 = link.rfind("https://");
+        if (test1 != test2) {
+            link = link.substr(link.rfind("tt"));
+            int p = link.find("?");
+            link = link.substr(0, p);
+            link = "https://imdb.com/title/" + link;
+        }*/
+        
+        vector<string> retVal;
+        int test1 = link.find("pro.");
+        int test2 = link.find("help.");
+        int check3 = link.find("title");
+        if ((test1 != -1) || (test2 != -1) || (check3 == -1)) {
+            return retVal;
+        }
+        //vector<string> profileLinks;
+        string fullCastLinkEnd = "fullcredits?ref_=tt_cl_sm";
+        int index = link.find("?ref");
+        string linkToFullCast = link.substr(0, index); //make sure this goes up to the / after the /title/ part of link
+        if (linkToFullCast.back() != '/') {
+            linkToFullCast += '/';
+        }
+        linkToFullCast += fullCastLinkEnd;
+        string htmlCode;
+        try {
+            htmlCode = cpr::Get(cpr::Url{ linkToFullCast }).text;
+            index = htmlCode.find("ullcredits_content");
+        }
+        catch (exception e) { return retVal; }
+        int index2 = htmlCode.find("contribute-main-section");
+        htmlCode = htmlCode.substr(index, index2); //all htmlCode for the cast/crew
+        index = htmlCode.find("table class=");
         htmlCode = htmlCode.substr(index);
-        index = htmlCode.find(" id=\"");
-        htmlCode = htmlCode.substr(0, index);
-        htmlCode = htmlCode.substr(9);
-        htmlCode = "https://www.linkedin.com" + htmlCode;
-        return htmlCode;
+        getDirAndWriter(retVal, htmlCode, profileLinks);
+        getCastMembers(htmlCode, retVal, profileLinks);
+        getCrew(retVal, htmlCode, profileLinks);
+        //will have a list of the entire cast for this movie plus a link to their profile at the same index
+        //
+        return retVal;
+
     }
-    pair<pair<vector<string>, vector<string>>, vector<string>> getConnectionsAndLinks(string connectLink) {
-        //first pair is name, company, second is link
-        string name, company, link;
-        pair<pair<vector<string>, vector<string>>, vector<string>> retVal;
-        cpr::Url url = cpr::Url{ connectLink };
-        cpr::Response response = cpr::Get(url);
-        string htmlCode = response.text;
-        int index = htmlCode.find("<a class=\"app-aware-link\" href=\"https://www.linkedin.com/in/");;
-        int distToLink = 0;
-        int endOfLink = 0;
-        link = "https://www.linkedin.com/in/";
+    string extractTopThousand(string pageNum) {
+        string link = "https://www.imdb.com/list/ls009131936/";
+        if (pageNum != "1") {
+            link += "?page=" + pageNum;
+        }
+        cpr::Url url = cpr::Url { link };
+        string response = cpr::Get(url).text;
+        return response;
+    }
+    vector<string> getLinksFromSearch(string webInfo) {
+        vector<string> retVal;
+        string linkKey = "lister-list";
+        string linkBase = "https://www.imdb.com";
+        //string linkEnd = "fullcredits/?ref_=tt_cl_sm";
+        int index = webInfo.find(linkKey);
+        int distToLinkEnd = 0;
+        string htmlCode = webInfo.substr(index);
+        linkKey = "lister-item-content";
+        index = webInfo.find(linkKey);
         while (index != string::npos) {
-            name = "";
-            company = "";
             htmlCode = htmlCode.substr(index);
-            distToLink = htmlCode.find("https://");
-            endOfLink = htmlCode.find('>');
-            if (distToLink != string::npos) {
-                htmlCode = htmlCode.substr(distToLink);
-            }
-            else {
-                break;
-            }
-            retVal.second.push_back(htmlCode.substr(0, endOfLink));
-            index = htmlCode.find("<span aria-hidden=\"true\"" + 25);
-            if (index != string::npos) {
-                htmlCode = htmlCode.substr(index);
-                index = htmlCode.find('"');
-                htmlCode = htmlCode.substr(index + 1);
-                endOfLink = htmlCode.find('"');
-                name = htmlCode.substr(0, endOfLink);
-                retVal.first.first.push_back(name);
-            }
-            index = htmlCode.find("<div class =\"entity-result__primary-subtitle t-14 t-black t-normal\">");
-            htmlCode = htmlCode.substr(index + 1);
-            index = htmlCode.find(" at ");
-            htmlCode = htmlCode.substr(index + 4);
-            index = htmlCode.find('<');
-            company = htmlCode.substr(0, index);
-            retVal.first.second.push_back(company);
-            index = htmlCode.find("<a class=\"app-aware-link\" href=\"https://www.linkedin.com/in/");
+            htmlCode = htmlCode.substr(htmlCode.find("lister-item-index unbold text-primary"));
+            htmlCode = htmlCode.substr(htmlCode.find("href="));
+            htmlCode = htmlCode.substr(htmlCode.find('/'));
+            distToLinkEnd = htmlCode.find('"');
+            retVal.push_back(linkBase + htmlCode.substr(0, distToLinkEnd));
+            index = htmlCode.find(linkKey);
         }
         return retVal;
     }

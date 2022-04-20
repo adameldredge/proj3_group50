@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 using namespace std;
-#include "AdjacencyList.h"
+#include "NEWadjList.h"
 
 bool isAdjacent (AdjacencyList::Person* first , AdjacencyList::Person* second)
 {
@@ -79,7 +79,7 @@ vector<AdjacencyList::Person*> dijkstra (map<string, AdjacencyList::Person*> gra
     path.push_back(source);
     // Flip vector
     vector<AdjacencyList::Person*> updatedPath;
-    for (int i = path.size()-1; i >= 0; i++)
+    for (int i = path.size()-1; i >= 0; i--)
     {
         updatedPath.push_back(path.at(i));
     }

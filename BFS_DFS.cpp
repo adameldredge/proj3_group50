@@ -5,9 +5,9 @@
 #include <stack>
 #include <queue>
 using namespace std;
-#include "AdjacencyList.h"
+#include "NEWadjList.h"
 
-pair<string,vector<AdjacencyList::Person*>> DFSvsBFS(map<string,AdjacencyList::Person*> graph)
+vector<AdjacencyList::Person*> DFSvsBFS(map<string,AdjacencyList::Person*> graph)
 {
     // DFS
     stack<AdjacencyList::Person*> s;
@@ -36,31 +36,6 @@ pair<string,vector<AdjacencyList::Person*>> DFSvsBFS(map<string,AdjacencyList::P
         it.second->visited = false;
         it.second->identified = false;
     }
-    // BFS
-    queue<AdjacencyList::Person*> q;
-    vector<AdjacencyList::Person*> pathBFS;
-    start = graph.begin()->second;
-    start->identified = true;
-    q.emplace(start);
-    while (!q.empty())
-    {
-        AdjacencyList::Person* current = q.front();
-        pathBFS.push_back(current);
-        q.pop();
-        for (auto it : current->adjNodes)
-        {
-            if (!it->identified && !it->visited)
-            {
-                it->identified = true;
-                q.emplace(it);
-            }
-        }
-        current->visited = true;
-    }
-    // Find smaller vector and return
-    if (pathDFS.size() < pathBFS.size())
-        return make_pair("DFS",pathDFS);
-    else
-        return make_pair("BFS",pathBFS);
+        return pathDFS;
 }
 

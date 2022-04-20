@@ -38,7 +38,7 @@ int main()
 
     sf::RectangleShape dosRectangle;
     dosRectangle.setSize(sf::Vector2f(120, 80));
-    dosRectangle.setPosition(940, 760);
+    dosRectangle.setPosition(940, 525);
     dosRectangle.setOutlineColor(sf::Color::Red);
     dosRectangle.setOutlineThickness(5);
     dosRectangle.setFillColor(sf::Color::Transparent);
@@ -135,6 +135,19 @@ int main()
     fiveFifthBox.setOutlineThickness(5);
     fiveFifthBox.setFillColor(sf::Color::Transparent);
 
+    sf::RectangleShape djBox;
+    djBox.setSize(sf::Vector2f(200,50));
+    djBox.setPosition(565,820);
+    djBox.setOutlineColor(sf::Color::Red);
+    djBox.setOutlineThickness(5);
+    djBox.setFillColor(sf::Color::Transparent);
+
+    sf::RectangleShape dfsBox;
+    dfsBox.setSize(sf::Vector2f(200,50));
+    dfsBox.setPosition(1250,820);
+    dfsBox.setOutlineColor(sf::Color::Red);
+    dfsBox.setOutlineThickness(5);
+    dfsBox.setFillColor(sf::Color::Transparent);
 
 
     sf::Font font;
@@ -287,57 +300,70 @@ int main()
     degreesOfSep.setFont(font2);
     degreesOfSep.setFillColor(sf::Color::Red);
     degreesOfSep.setCharacterSize(75);
-    degreesOfSep.setPosition(676, 650);
+    degreesOfSep.setPosition(676, 400);
 
     sf::Text degreesOfSep6;
     degreesOfSep6.setString("6");
     degreesOfSep6.setFont(font2);
     degreesOfSep6.setFillColor(sf::Color::Red);
     degreesOfSep6.setCharacterSize(70);
-    degreesOfSep6.setPosition(985, 755);
+    degreesOfSep6.setPosition(985, 520);
 
     sf::Text degreesOfSep5;
     degreesOfSep5.setString("5");
     degreesOfSep5.setFont(font2);
     degreesOfSep5.setFillColor(sf::Color::Red);
     degreesOfSep5.setCharacterSize(70);
-    degreesOfSep5.setPosition(985, 755);
+    degreesOfSep5.setPosition(985, 520);
 
     sf::Text degreesOfSep4;
     degreesOfSep4.setString("4");
     degreesOfSep4.setFont(font2);
     degreesOfSep4.setFillColor(sf::Color::Red);
     degreesOfSep4.setCharacterSize(70);
-    degreesOfSep4.setPosition(985, 755);
+    degreesOfSep4.setPosition(985, 520);
 
     sf::Text degreesOfSep3;
     degreesOfSep3.setString("3");
     degreesOfSep3.setFont(font2);
     degreesOfSep3.setFillColor(sf::Color::Red);
     degreesOfSep3.setCharacterSize(70);
-    degreesOfSep3.setPosition(985, 755);
+    degreesOfSep3.setPosition(985, 520);
 
     sf::Text degreesOfSep2;
     degreesOfSep2.setString("2");
     degreesOfSep2.setFont(font2);
     degreesOfSep2.setFillColor(sf::Color::Red);
     degreesOfSep2.setCharacterSize(70);
-    degreesOfSep2.setPosition(985, 755);
+    degreesOfSep2.setPosition(985, 520);
 
     sf::Text degreesOfSep1;
     degreesOfSep1.setString("1");
     degreesOfSep1.setFont(font2);
     degreesOfSep1.setFillColor(sf::Color::Red);
     degreesOfSep1.setCharacterSize(70);
-    degreesOfSep1.setPosition(985, 755);
+    degreesOfSep1.setPosition(985, 520);
 
     sf::Text degreesOfSep0;
     degreesOfSep0.setString("0");
     degreesOfSep0.setFont(font2);
     degreesOfSep0.setFillColor(sf::Color::Red);
     degreesOfSep0.setCharacterSize(70);
-    degreesOfSep0.setPosition(985, 755);;
+    degreesOfSep0.setPosition(985, 520);
 
+    sf::Text djText;
+    djText.setString("Time to run Dijkstra's:");
+    djText.setFont(font2);
+    djText.setFillColor(sf::Color::Red);
+    djText.setCharacterSize(45);
+    djText.setPosition(480, 750);
+
+    sf::Text dfsText;
+    dfsText.setString("Time to run DFS:");
+    dfsText.setFont(font2);
+    dfsText.setFillColor(sf::Color::Red);
+    dfsText.setCharacterSize(45);
+    dfsText.setPosition(1210, 750);
 
     string str;
     string str2;
@@ -345,8 +371,8 @@ int main()
     string company2String;
     //gets put into str. can use str to manipulate
     sf::Text text;
-    sf::Text djText;
-    sf::Text dfsText;
+    sf::Text djTimer;
+    sf::Text dfsTimer;
     sf::Text inputText2;
     sf::Text company1Text;
     sf::Text company2Text;
@@ -402,7 +428,7 @@ int main()
                         text.setString(str);
                         text.setFont(font);
                         text.setCharacterSize(40);
-                        text.setPosition(60, 300);
+                        text.setPosition(65, 300);
                     }
                 }
                 if (event.key.code == sf::Keyboard::BackSpace) {
@@ -443,22 +469,22 @@ int main()
                 time = clock() - time;
                 djTime = (float)time/CLOCKS_PER_SEC;
 
-                djText.setString(to_string(djTime));
-                djText.setFont(font2);
-                djText.setFillColor(sf::Color::Red);
-                djText.setCharacterSize(30);
-                djText.setPosition(600, 800);
+                djTimer.setString(to_string(djTime));
+                djTimer.setFont(font2);
+                djTimer.setFillColor(sf::Color::Red);
+                djTimer.setCharacterSize(30);
+                djTimer.setPosition(610, 825);
 
                 time = clock();
                 fakeOutput = Graph->DFSvsBFS(Graph->nodes);
                 time = clock() - time;
                 dfsTime = (float)time/CLOCKS_PER_SEC;
 
-                dfsText.setString(to_string(djTime));
-                dfsText.setFont(font2);
-                dfsText.setFillColor(sf::Color::Red);
-                dfsText.setCharacterSize(30);
-                dfsText.setPosition(1000, 800);
+                dfsTimer.setString(to_string(djTime));
+                dfsTimer.setFont(font2);
+                dfsTimer.setFillColor(sf::Color::Red);
+                dfsTimer.setCharacterSize(30);
+                dfsTimer.setPosition(1295, 825);
 
                 enterCount++;
             }
@@ -466,7 +492,8 @@ int main()
 
 
         }
-        //degreesOfSeparation = output.size();
+
+        degreesOfSeparation = 6;
         //stuff always there:
         window.draw(header);
         window.draw(input1);
@@ -476,17 +503,16 @@ int main()
         window.draw(degreesOfSep);
         window.draw(dosRectangle);
         window.draw(text);
-        window.draw(djText);
+        window.draw(djBox);
+        window.draw(dfsBox);
+        window.draw(djTimer);
+        window.draw(dfsTimer);
         window.draw(dfsText);
+        window.draw(djText);
         window.draw(inputText2);
-//        window.draw(company1);
-//        window.draw(company2);
-//        window.draw(rectangleCo1);
-//        window.draw(rectangleCo2);
-//        window.draw(company1Text);
-//        window.draw(company2Text);
 
         if(degreesOfSeparation == 5){
+            // Create text for indices 1 - 4
             window.draw(degreesOfSep5);
             window.draw(firstBottomRectangle);
             window.draw(secondBottomRectangle);
@@ -497,8 +523,42 @@ int main()
             window.draw(arrow41);
             window.draw(arrow42);
             window.draw(arrow43);
+
+            sf::Text first;
+            first.setString(output.at(1)->name);
+            first.setFont(font2);
+            first.setFillColor(sf::Color::White);
+            first.setCharacterSize(45);
+            first.setPosition(1210, 750);
+
+            sf::Text second;
+            second.setString(output.at(2)->name);
+            second.setFont(font2);
+            second.setFillColor(sf::Color::White);
+            second.setCharacterSize(45);
+            second.setPosition(1210, 750);
+
+            sf::Text third;
+            third.setString(output.at(3)->name);
+            third.setFont(font2);
+            third.setFillColor(sf::Color::White);
+            third.setCharacterSize(45);
+            third.setPosition(1210, 750);
+
+            sf::Text fourth;
+            fourth.setString(output.at(4)->name);
+            fourth.setFont(font2);
+            fourth.setFillColor(sf::Color::White);
+            fourth.setCharacterSize(45);
+            fourth.setPosition(1210, 750);
+
+            window.draw(first);
+            window.draw(second);
+            window.draw(third);
+            window.draw(fourth);
         }
         else if(degreesOfSeparation == 4){
+            // Create text for indices 1-3
             window.draw(degreesOfSep4);
             window.draw(downArrow1);
             window.draw(upArrow1);
@@ -507,20 +567,74 @@ int main()
             window.draw(threeThirdBox);
             window.draw(arrow31);
             window.draw(arrow32);
+
+            sf::Text first;
+            first.setString(output.at(1)->name);
+            first.setFont(font2);
+            first.setFillColor(sf::Color::White);
+            first.setCharacterSize(45);
+            first.setPosition(1210, 750);
+
+            sf::Text second;
+            second.setString(output.at(2)->name);
+            second.setFont(font2);
+            second.setFillColor(sf::Color::White);
+            second.setCharacterSize(45);
+            second.setPosition(1210, 750);
+
+            sf::Text third;
+            third.setString(output.at(3)->name);
+            third.setFont(font2);
+            third.setFillColor(sf::Color::White);
+            third.setCharacterSize(45);
+            third.setPosition(1210, 750);
+
+            window.draw(first);
+            window.draw(second);
+            window.draw(third);
         }
         else if(degreesOfSeparation == 3){
+            // Create text for indices 1-2
             window.draw(degreesOfSep3);
             window.draw(downArrow1);
             window.draw(upArrow1);
             window.draw(oneThirdBox);
             window.draw(threeThirdBox);
             window.draw(arrow21);
+
+            sf::Text first;
+            first.setString(output.at(1)->name);
+            first.setFont(font2);
+            first.setFillColor(sf::Color::White);
+            first.setCharacterSize(45);
+            first.setPosition(1210, 750);
+
+            sf::Text second;
+            second.setString(output.at(2)->name);
+            second.setFont(font2);
+            second.setFillColor(sf::Color::White);
+            second.setCharacterSize(45);
+            second.setPosition(1210, 750);
+
+            window.draw(first);
+            window.draw(second);
         }
         else if(degreesOfSeparation == 2){
+            // Create text for index 1
             window.draw(degreesOfSep2);
             window.draw(downArrow1);
             window.draw(upArrow1);
             window.draw(oneBigBox);
+
+
+            sf::Text first;
+            first.setString(output.at(1)->name);
+            first.setFont(font2);
+            first.setFillColor(sf::Color::White);
+            first.setCharacterSize(45);
+            first.setPosition(1210, 750);
+
+            window.draw(first);
         }
         else if(degreesOfSeparation == 1){
             window.draw(degreesOfSep1);
@@ -531,8 +645,49 @@ int main()
             window.draw(arrow01);
         }
         else if(degreesOfSeparation == 6){
+            // Create text for indices 1-5
+            sf::Text first;
+            first.setString(output.at(1)->name);
+            first.setFont(font2);
+            first.setFillColor(sf::Color::White);
+            first.setCharacterSize(50);
+            first.setPosition(125, 1055);
+
+            sf::Text second;
+            second.setString(output.at(2)->name);
+            second.setFont(font2);
+            second.setFillColor(sf::Color::White);
+            second.setCharacterSize(50);
+            second.setPosition(125, 1355);
+
+            sf::Text third;
+            third.setString(output.at(3)->name);
+            third.setFont(font2);
+            third.setFillColor(sf::Color::White);
+            third.setCharacterSize(50);
+            third.setPosition(815, 1355);
+
+            sf::Text fourth;
+            fourth.setString(output.at(4)->name);
+            fourth.setFont(font2);
+            fourth.setFillColor(sf::Color::White);
+            fourth.setCharacterSize(50);
+            fourth.setPosition(1515, 1355);
+
+            sf::Text fifth;
+            fifth.setString(output.at(5)->name);
+            fifth.setFont(font2);
+            fifth.setFillColor(sf::Color::White);
+            fifth.setCharacterSize(50);
+            fifth.setPosition(1515, 1055);
+
             window.draw(degreesOfSep6);
 
+            window.draw(first);
+            window.draw(second);
+            window.draw(third);
+            window.draw(fourth);
+            window.draw(fifth);
             window.draw(oneThirdBox);
             window.draw(twoThirdBox);
             window.draw(threeThirdBox);
